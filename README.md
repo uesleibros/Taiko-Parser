@@ -12,5 +12,18 @@
 # How .TJA Chart works
 > The chart works using line breaks, each line has some information, like `TITLE:something`. But let's not focus on that, but on that part full of strange numbers, for example:
 ```xml
+TITLE:my chart
+AUTHOR:UesleiDev
+ARTIST:something
+COURSE:3
+.......something
 
+#START
+001020100200211211,
+1425772,
+16281717272632200,
+.......something
+#END
 ```
+
+> Well, after the `#START` the chart really starts. That bunch of numbers is actually the grade type, the only numbers that aren't grades are `0` and `7`.
