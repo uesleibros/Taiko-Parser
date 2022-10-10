@@ -1,3 +1,4 @@
+
 # Taiko-Parser
 > A simple Parser for Taiko no Tatsujin charts. I did it in less than 5 hours and I'm proud that I finished it, it has chances to improve in the future!
 
@@ -26,4 +27,12 @@ COURSE:3
 #END
 ```
 
-> Well, after the `#START` the chart really starts. That bunch of numbers is actually the grade type, the only numbers that aren't grades are `0` and `7`.
+> Well, after the `#START` the chart really starts. That bunch of numbers is actually the grade type, the only numbers that aren't grades are `0` and `8`.
+
+## Note Types
+- `Don (1)`: This is the red note that appears on the chart.
+- `Ka (2)`: This is the blue note that appears on the chart.
+- `Drumroll (5)`: Let's say the long notes, only instead of squeezing and holding you're spamming.
+- `Ballon (9)`: It's the same concept as note (5)(Drumroll), only you only spam the red note button.
+
+  [If you want to know more, Click Here!](https://github.com/bui/taiko-web/wiki/TJA-format)
