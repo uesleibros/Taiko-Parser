@@ -26,17 +26,14 @@ COURSE_TYPES = {
 
 class TJAParser(object):
 	def __init__(self, object):
-		self.taiko = {"meta": {}, "events": []}
+		self.taiko = {"meta": {}}
 		self.tjaFile = open(str(object) + ".tja").read()
 		self.tja = self.tjaFile.split("\n")
 		self.pos = 0
-		self.eventPos = 0
 		self.inStart = False
-		self.getEvents = False
 		self.getNotes = False
 		self.ended = False
 		self.notes = []
-		self.eventsCount = 0
 		
 	def TJAConvertVAR(self, key):
 		if not bool(re.findall(r"[a-zA-Z]", key)) and self.TJAIgnore(key):
@@ -63,62 +60,19 @@ class TJAParser(object):
 			self.ended = True
 			return False
 		return True
-		
-	def TJAEvent(self, key):
-		rKey = key.replace("#", "")
-		sKey = rKey.split(" ")
-		
-		if rKey[0:7] == "BARLINE":
-			return
-		if rKey[0:11] == "GOGOSTART":
-			return
-		if rKey[0:7] == "GOGOEND":
-			return
-		if rKey[0:6] == "SCROLL":
-			return
-		
-			
-		self.taiko["events"].append(
-			{
-				sKey[0].lower(): sKey[1]
-			}
-		)
-		
-		self.eventsCount += 1
-	
-	def TJAIsEvent(self, key):		
-		if "#" in key.strip() and "#START" not in key.strip():
-			if "#END" in key.strip():
-				self.getEvents = False
-				self.getNotes = True
-				return False
-			return True
-		
-		return False
 	
 	def skip(self):
 		if self.pos < len(self.tja):
 			self.pos += 1
-	
-	def skipEvent(self):
-		if self.eventPos < len(self.tja):
-			self.eventPos += 1
 			
 	def Parse(self):
 		while self.pos < len(self.tja):
-			if type(self.tja[self.pos]) == str and self.TJAIgnore(self.tja[self.pos]) and not self.inStart and not self.getEvents:
+			if type(self.tja[self.pos]) == str and self.TJAIgnore(self.tja[self.pos]) and not self.inStart:
 				self.TJAKey(self.tja[self.pos])
-				
-			if self.getEvents and self.inStart:
-				if self.TJAIsEvent(self.tja[self.eventPos]):
-					self.TJAEvent(self.tja[self.eventPos])
-					self.skipEvent()
-				else:
-					self.skipEvent()
 		
 			self.skip()
-		if self.getNotes:
-			self.ParseNotes()
+      
+		self.ParseNotes()
 	
 	def TJAChangeJSON(self):
 		self.taiko["meta"]["course"] = COURSE_TYPES[str(int(self.taiko["meta"]["course"]))]
@@ -142,7 +96,5 @@ class TJAParser(object):
 					}
 				)
 		
-		print(self.taiko["meta"])
-		
-parser = TJAParser("KappaSays")
+parser = TJAParser("chart")
 parser.Parse()
