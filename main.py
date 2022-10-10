@@ -1,14 +1,32 @@
-"""
-By: UesleiDev 2022
--> Wtf, i did this (ITS SOOOOOOOOO CRAZY).
--> I'm working in this for 5 hours, then this can be upgraded in the future.'
-"""
-
 import re
+
+NOTE_TYPES = {
+	"0": "blank", # Blank notes, not be generated
+	"1": "don",
+	"2": "ka",
+	"3": "daiDon",
+	"4": "daiKa",
+	"5": "drumroll",
+	"6": "daiDrumroll",
+	"7": "ballon",
+	"8": "blank", # Blank notes, not be generated
+	"9": "ballon",
+	"A": "daiDon",
+	"B": "daiKa"
+}
+
+COURSE_TYPES = {
+	"0": "easy",
+	"1": "normal",
+	"2": "hard",
+	"3": "oni",
+	"4": "ura",
+	"edit": "ura"
+}
 
 class TJAParser(object):
 	def __init__(self, object):
-		self.taiko = {"info": {}, "events": []}
+		self.taiko = {"meta": {}, "events": []}
 		self.tjaFile = open(str(object) + ".tja").read()
 		self.tja = self.tjaFile.split("\n")
 		self.pos = 0
@@ -20,9 +38,15 @@ class TJAParser(object):
 		self.notes = []
 		self.eventsCount = 0
 		
+	def TJAConvertVAR(self, key):
+		if not bool(re.findall(r"[a-zA-Z]", key)) and self.TJAIgnore(key):
+			return float(key)
+		
+		return key
+		
 	def TJAKey(self, key):
 		keyTitle = key.split(":")[0]
-		self.taiko["info"][keyTitle.lower()] = key.replace(keyTitle + ":", "")
+		self.taiko["meta"][keyTitle.lower()] = self.TJAConvertVAR(key.replace(keyTitle + ":", ""))
 	
 	def TJAIgnore(self, key):
 		if "//" in key or "/" in key: # For comments xD
@@ -52,6 +76,7 @@ class TJAParser(object):
 			return
 		if rKey[0:6] == "SCROLL":
 			return
+		
 			
 		self.taiko["events"].append(
 			{
@@ -81,7 +106,7 @@ class TJAParser(object):
 			
 	def Parse(self):
 		while self.pos < len(self.tja):
-			if self.TJAIgnore(self.tja[self.pos]) and not self.inStart:
+			if type(self.tja[self.pos]) == str and self.TJAIgnore(self.tja[self.pos]) and not self.inStart and not self.getEvents:
 				self.TJAKey(self.tja[self.pos])
 				
 			if self.getEvents and self.inStart:
@@ -90,13 +115,16 @@ class TJAParser(object):
 					self.skipEvent()
 				else:
 					self.skipEvent()
-					
-			self.skip() # I love this bro.
-			
+		
+			self.skip()
 		if self.getNotes:
 			self.ParseNotes()
 	
+	def TJAChangeJSON(self):
+		self.taiko["meta"]["course"] = COURSE_TYPES[str(int(self.taiko["meta"]["course"]))]
+	
 	def ParseNotes(self):
+		self.TJAChangeJSON()
 		for e in self.tja:
 			if(bool(re.match('^[0-9]', e))):
 				self.notes.append(e.replace(",", ""))
@@ -105,13 +133,16 @@ class TJAParser(object):
 			for i, num in enumerate(note):
 				self.taiko["notes"].append(
 					{
-						"beat": i * float(self.taiko["info"]["bpm"]),
-						"note": num
+						"id": i,
+						"bpm": abs(self.taiko["meta"]["bpm"]),
+						"bpmMS": 60000 / self.taiko["meta"]["bpm"],
+						"ms": self.taiko["meta"]["offset"] * -1000 + self.taiko["meta"]["offset"],
+						"style": int(num),
+						"name": NOTE_TYPES[num]
 					}
 				)
 		
-		print(self.taiko) # See the JSOON
-
-#	-> Example:		
+		print(self.taiko["meta"])
+		
 parser = TJAParser("KappaSays")
 parser.Parse()
