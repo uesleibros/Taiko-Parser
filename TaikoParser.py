@@ -79,17 +79,19 @@ class TJAParser(object):
 	
 	def ParseNotes(self):
 		self.TJAChangeJSON()
+		ms = 0
 		for e in self.tja:
 			if(bool(re.match('^[0-9]', e))):
 				self.notes.append(e.replace(",", ""))
 		
 		for note in self.notes:
 			for i, num in enumerate(note):
+				ms += 60000 * 2 / self.taiko["meta"]["bpm"]
 				self.taiko["notes"].append(
 					{
 						"id": i,
+						"ms": ms,
 						"bpm": abs(self.taiko["meta"]["bpm"]),
-						"bpmMS": 60000 / self.taiko["meta"]["bpm"],
 						"ms": self.taiko["meta"]["offset"] * -1000 + self.taiko["meta"]["offset"],
 						"style": int(num),
 						"name": NOTE_TYPES[num]
